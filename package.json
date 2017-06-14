@@ -1,0 +1,24 @@
+{
+  "name": "socketiochat",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "express": "^4.15.2",
+    "socket.io": "^2.0.3"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "node index"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/oggyman/socketIoChat.git"
+  },
+  "author": "denis_gl",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/oggyman/socketIoChat/issues"
+  },
+  "homepage": "https://github.com/oggyman/socketIoChat#readme"
+}
