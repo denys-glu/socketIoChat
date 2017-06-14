@@ -1,0 +1,116 @@
+<!doctype html>
+<html>
+<head>
+  <title>Socket.IO chat</title>
+  <style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font: 13px Helvetica, Arial; }
+  form { background: #000; padding: 3px; position: absolute; bottom: 0; width: 100%; }
+  form input { border: 0; padding: 10px; width: 90%; margin-right: .5%; }
+  form button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; }
+  #messages { list-style-type: none; margin: 0; padding: 0; }
+  #messages li { padding: 5px 10px; }
+  .systemMessage {background: #A5D6A7!important; font-size: 20px;}
+  .userName {font-style: italic;}
+  .wrapper {height: 500px; width: 500px; position: relative; overflow: hidden;}
+  .messagesWrapper {overflow-y: scroll; height: 92%;}
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="messagesWrapper">
+      <ul id="messages"></ul>
+    </div>
+
+
+    <form id="askName" action="">
+      <input id="name" autocomplete="off" placeholder="Enter your name" /><button>Confirm</button>
+    </form>
+
+    <form style="visibility: hidden" id="chatInput" action="">
+      <input id="m" autocomplete="off" /><button>Send</button>
+    </form>
+    </div>
+  </div>
+
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+  <script>
+  $(document).ready(function() {
+    var userName;
+    var count = 0;
+    var title = document.title;
+    function changeTitle() {
+        count++;
+        var newTitle = '(' + count + ') ' + title;
+        document.title = newTitle;
+    }
+    var focus = true;
+    var d = new Date();
+    window.onblur = function() {
+      focus = false;
+    }
+    window.onfocus = function() {
+      focus = true;
+      document.title= title;
+      count = 0;
+    }
+    document.onblur = window.onblur;
+    document.focus = window.focus;
+
+
+
+    $(function () {
+      var socket = io();
+
+      $('#askName').submit(function(event){
+        userName = $('#name').val();
+        console.log('askName submit clicked: ' + userName);
+        if(userName){
+          $('#askName').css('display','none');
+          $('#chatInput').css('visibility','visible');
+          socket.emit('connected', userName);
+          $('#m').val('');
+
+        } else {
+          alert('Type in correct name');
+        }
+
+        return false;
+      });
+
+      $('#chatInput').submit(function(){
+        console.log('chatInput submit clicked');
+        socket.emit('chat message', $('#m').val());
+        $('#m').val('');
+        return false;
+      });
+
+      socket.on('connected', function(name){
+        console.log('someone connected his name is: ', name);
+        $('#messages').append($('<li class="systemMessage">').text(name + ' connected to our chat, say Hi to him))'));
+      });
+
+      socket.on('chat message', function(name, msg){
+        console.log(name + " | " + userName)
+        if(!focus){
+          changeTitle()
+        }
+
+
+
+        if(name === userName){
+          $('#messages').append($('<li><span class="userName">'+ name +': </span>'+msg+'</li>'));
+          $('#messages > li:last-child').css('background','#F5F5F5');
+        } else {
+            $('#messages > li:last-child').css('background','#ECEFF1');
+            $('#messages').append($('<li style="text-align:right"><span class="userName">'+ name +': </span><span>'+msg+'</span></li>'));
+        }
+        $('.messagesWrapper').animate({scrollTop: $('.messagesWrapper').prop("scrollHeight")}, 20);
+      });
+    });
+  });
+  </script>
+  </body>
+  </html>
